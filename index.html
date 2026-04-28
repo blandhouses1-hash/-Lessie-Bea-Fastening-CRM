@@ -39,6 +39,8 @@ button { background:#ff69b4; color:white; }
 
 li { margin:12px 0; padding:8px; background:#5a5a5a; border-radius:8px; }
 
+.green { color:#00ff88; }
+.red { color:#ff4d4d; }
 </style>
 </head>
 
@@ -122,30 +124,18 @@ function setGoal(){
     goalDisplay.innerText = g;
 }
 
-/* FOOD DATABASE */
-const foodDB = [
-    {name:"chicken breast", cal:165},
-    {name:"rice", cal:206},
-    {name:"eggs", cal:70},
-    {name:"salmon", cal:208},
-    {name:"banana", cal:105}
-];
-
+/* DATE */
 function today(){
     return new Date().toISOString().slice(0,10);
 }
 
 /* FOOD */
-function findFood(v){
-    return foodDB.find(f => v.toLowerCase().includes(f.name));
-}
-
 function addFood(){
-    let f = findFood(foodName.value);
-    if(!f) return alert("Food not found");
+    let name = foodName.value;
+    if(!name) return;
 
     let data = JSON.parse(localStorage.getItem("food_"+today())) || [];
-    data.push(f);
+    data.push({name:name, cal:0});
 
     localStorage.setItem("food_"+today(), JSON.stringify(data));
     loadFood();
@@ -155,10 +145,10 @@ function loadFood(){
     let data = JSON.parse(localStorage.getItem("food_"+today())) || [];
     foodList.innerHTML = "";
 
-    let cal=0;
+    let total = 0;
 
     data.forEach((x,i)=>{
-        cal += x.cal;
+        total += x.cal;
 
         let li = document.createElement("li");
         li.innerHTML = `
@@ -168,8 +158,8 @@ function loadFood(){
         foodList.appendChild(li);
     });
 
-    totalCalories.innerText = cal;
-    calLeft.innerText = DAILY_LIMIT - cal;
+    totalCalories.innerText = total;
+    calLeft.innerText = DAILY_LIMIT - total;
 }
 
 function deleteFood(i){
@@ -231,49 +221,24 @@ function startFast(){
 
     localStorage.setItem("start", start);
     localStorage.setItem("end", end);
-
-    runTimer();
 }
 
-function runTimer(){
-    clearInterval(timer);
-
-    timer = setInterval(()=>{
-        let end = new Date(localStorage.getItem("end"));
-        let now = new Date();
-
-        let diff = (end-now)/1000;
-
-        if(diff <= 0){
-            timer = clearInterval(timer);
-            remaining.innerText = "DONE 🎉";
-            return;
-        }
-
-        let h = String(Math.floor(diff/3600)).padStart(2,'0');
-        let m = String(Math.floor((diff%3600)/60)).padStart(2,'0');
-        let s = String(Math.floor(diff%60)).padStart(2,'0');
-
-        timerDisplay.innerText = `${h}:${m}:${s}`;
-    },1000);
-}
-
-/* END FAST (FIXED) */
+/* FIXED END FAST BUTTON */
 function endFast(){
     clearInterval(timer);
 
     let start = new Date(localStorage.getItem("start"));
     let end = new Date();
 
-    let diff = (end-start)/1000;
-    let h = Math.floor(diff/3600);
-    let m = Math.floor((diff%3600)/60);
+    let diff = (end - start) / 1000;
+    let h = Math.floor(diff / 3600);
+    let m = Math.floor((diff % 3600) / 60);
 
     let data = JSON.parse(localStorage.getItem("fasts")) || [];
 
     data.push({
         date: today(),
-        duration: h+"h "+m+"m",
+        duration: h + "h " + m + "m",
         notes: notes.value
     });
 
