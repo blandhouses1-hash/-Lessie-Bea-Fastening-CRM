@@ -1,198 +1,46 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Lessie Bea Fastening CRM</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body { font-family: Arial; background:#2f2f2f; color:white; margin:0; }
-header { background:#ff4fa3; padding:15px; text-align:center; }
-.box { background:#3f3f3f; margin:10px; padding:15px; border-radius:12px; }
-.big { font-size:48px; text-align:center; }
-.sub { text-align:center; color:#00ffd5; }
-input, textarea, button, select {
-width:100%; padding:10px; margin:6px 0;
-border-radius:8px; border:none;
-}
-button { background:#ff4fa3; color:white; }
-li { margin:10px 0; padding:10px; background:#555; border-radius:8px; }
-</style>
-</head>
-
-<body>
-
-<header>
-<h2>Lessie Bea Fastening CRM</h2>
-<div id="todayDate"></div>
-</header>
-
-<!-- CALORIES -->
-<div class="box">
-<h3>Daily Calorie Goal</h3>
-<input id="calGoalInput" type="number">
-<button onclick="setGoal()">Save Goal</button>
-<h4>Goal: <span id="goalDisplay">1700</span></h4>
-<h4>Calories Left: <span id="calLeft">0</span></h4>
-</div>
-
-<!-- FASTING -->
-<div class="box">
-<div class="big" id="timer">00:00:00</div>
-<div class="sub" id="remaining">Time Left: --</div>
-<div class="sub" id="startTime">Start: --</div>
-<div class="sub" id="endTime">End: --</div>
-
-<select id="fastType">
-<option value="16">16:8</option>
-<option value="18">18:6</option>
-<option value="23">OMAD</option>
-<option value="custom">Custom</option>
-</select>
-
-<input id="customHours" type="number">
-
-<button onclick="startFast()">Start Fast</button>
-<button onclick="endFast()">End Fast</button>
-
-<textarea id="notes" placeholder="Fasting notes"></textarea>
-</div>
-
-<!-- MEAL TRACKER (FIXED ONLY) -->
-<div class="box">
-<h3>Meal Tracker</h3>
-<select id="mealType" onchange="toggleCustomMeal()">
-<option>OMAD</option>
-<option>2MAD</option>
-<option>3MAD</option>
-<option value="custom">Custom</option>
-</select>
-
-<input id="customMealInput" placeholder="Enter custom meal plan" style="display:none;">
-</div>
-
-<!-- FOOD -->
-<div class="box">
-<h3>Food Tracker</h3>
-
-<input id="foodName" placeholder="Food name">
-<input id="foodCal" type="number" placeholder="Calories (auto)">
-<input id="foodProtein" type="number" placeholder="Protein (auto)">
-<input id="foodCarbs" type="number" placeholder="Carbs (auto)">
-<input id="foodFat" type="number" placeholder="Fat (auto)">
-
-<button onclick="addFood()">Add Food</button>
-
-<h4>Calories: <span id="totalCalories">0</span></h4>
-<h4>Protein: <span id="totalProtein">0</span></h4>
-<h4>Carbs: <span id="totalCarbs">0</span></h4>
-<h4>Fat: <span id="totalFat">0</span></h4>
-
-<ul id="foodList"></ul>
-</div>
-
-<!-- EXERCISE -->
-<div class="box">
-<h3>Exercise</h3>
-<input id="exerciseInput">
-<button onclick="addExercise()">Add Exercise</button>
-<ul id="exerciseList"></ul>
-</div>
-
-<!-- WATER -->
-<div class="box">
-<h3>Water (40 oz goal)</h3>
-<input id="waterInput" type="number">
-<button onclick="addWater()">Add Water</button>
-<h4>Total: <span id="waterTotal">0</span> oz</h4>
-<ul id="waterList"></ul>
-</div>
-
-<!-- FAST HISTORY -->
-<div class="box">
-<h3>Fasting History</h3>
-<ul id="historyList"></ul>
-</div>
-
-<!-- WEIGHT -->
-<div class="box">
-<h3>Friday Weigh-In Tracker</h3>
-
-<input type="date" id="weightDate">
-<input id="weightInput" type="number" placeholder="Weight">
-<textarea id="weightNote" placeholder="Notes"></textarea>
-
-<button onclick="saveWeight()">Save Weigh-In</button>
-
-<h4>Start: 247 lbs</h4>
-<h4>Goal 1: 175 lbs</h4>
-<h4>Goal 2: 155 lbs</h4>
-
-<ul id="weightList"></ul>
-</div>
-
-<!-- MILESTONES -->
-<div class="box">
-<h3>Monthly Weight Milestones</h3>
-<input id="mileInput">
-<button onclick="addMile()">Add</button>
-<ul id="mileList"></ul>
-</div>
-
-<!-- BIBLE -->
-<div class="box">
-<h3>Bible Verse Tracker</h3>
-<textarea id="verseInput"></textarea>
-<button onclick="addVerse()">Save Verse</button>
-<ul id="verseList"></ul>
-</div>
+<!-- REPLACE ONLY YOUR FOOD SCRIPT SECTION WITH THIS -->
 
 <script>
 
-todayDate.innerText=new Date().toDateString();
-
-/* ✅ FIX 1: MEAL CUSTOM */
-function toggleCustomMeal(){
-if(mealType.value==="custom"){
-customMealInput.style.display="block";
-}else{
-customMealInput.style.display="none";
-}
-}
-
-/* DATE */
-function today(){
-return new Date().toISOString().slice(0,10);
-}
-
-/* CAL GOAL */
-let DAILY_LIMIT = localStorage.getItem("goal") || 1700;
-goalDisplay.innerText=DAILY_LIMIT;
-
-/* ✅ FIX 2: CORRECT FOOD VALUES ONLY */
+/* BETTER FOOD DATABASE */
 const foodDB = [
-{name:"chicken breast", cal:165, p:31, c:0, f:3.6},
-{name:"egg", cal:70, p:6, c:1, f:5},
-{name:"rice", cal:206, p:4, c:45, f:0.4},
-{name:"banana", cal:105, p:1, c:27, f:0},
-
-{name:"apple", cal:95, p:0.5, c:25, f:0.3},
-
 {name:"cheese pizza", cal:285, p:12, c:36, f:10},
 {name:"pepperoni pizza", cal:313, p:13, c:35, f:13},
-{name:"pizza", cal:285, p:12, c:36, f:10},
+{name:"slice pizza", cal:285, p:12, c:36, f:10},
 
-{name:"grape soda", cal:150, p:0, c:40, f:0}
+{name:"grape fruit", cal:62, p:0.6, c:16, f:0.3},
+{name:"grape soda", cal:150, p:0, c:40, f:0},
+
+{name:"apple", cal:95, p:0.5, c:25, f:0.3},
+{name:"banana", cal:105, p:1, c:27, f:0}
 ];
 
-function findFood(name){
-name = name.toLowerCase();
+/* ASK USER FOR TYPE */
+function getFoodDetails(input){
+input = input.toLowerCase();
+
+if(input.includes("pizza")){
+let type = prompt("What kind? cheese / pepperoni / slice");
+if(!type) return null;
+return foodDB.find(f => f.name.includes(type.toLowerCase()+" pizza"));
+}
+
+if(input.includes("grape")){
+let type = prompt("Fruit or soda?");
+if(!type) return null;
+return foodDB.find(f => f.name.includes("grape "+type.toLowerCase()));
+}
+
+/* normal match */
 return foodDB.find(f =>
-name.includes(f.name) || f.name.includes(name)
+input.includes(f.name) || f.name.includes(input)
 );
 }
 
+/* AUTO FILL */
 function autoFillFood(){
-let match = findFood(foodName.value);
+let match = getFoodDetails(foodName.value);
+
 if(match){
 foodCal.value = match.cal;
 foodProtein.value = match.p;
@@ -201,10 +49,10 @@ foodFat.value = match.f;
 }
 }
 
-foodName.addEventListener("input", autoFillFood);
+foodName.removeEventListener("input", autoFillFood);
+foodName.addEventListener("blur", autoFillFood);
 
-/* KEEP REST SAME */
-
+/* ADD FOOD */
 function addFood(){
 let food={
 name:foodName.value,
@@ -227,6 +75,7 @@ foodFat.value="";
 loadFood();
 }
 
+/* LOAD FOOD */
 function loadFood(){
 let data=JSON.parse(localStorage.getItem("food_"+today()))||[];
 foodList.innerHTML="";
@@ -234,7 +83,10 @@ foodList.innerHTML="";
 let cal=0,pro=0,carb=0,fat=0;
 
 data.forEach((x,i)=>{
-cal+=x.cal; pro+=x.protein; carb+=x.carbs; fat+=x.fat;
+cal+=Number(x.cal);
+pro+=Number(x.protein);
+carb+=Number(x.carbs);
+fat+=Number(x.fat);
 
 let li=document.createElement("li");
 li.innerHTML=`
@@ -254,16 +106,4 @@ totalFat.innerText=fat;
 calLeft.innerText=DAILY_LIMIT-cal;
 }
 
-function delFood(i){
-let data=JSON.parse(localStorage.getItem("food_"+today()));
-data.splice(i,1);
-localStorage.setItem("food_"+today(),JSON.stringify(data));
-loadFood();
-}
-
-loadFood();
-
 </script>
-
-</body>
-</html>
