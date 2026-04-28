@@ -82,9 +82,9 @@ li { margin:12px 0; padding:8px; background:#5a5a5a; border-radius:8px; }
 <!-- WATER -->
 <div class="box">
     <h3>💧 Water Intake (40 oz goal)</h3>
-    <input id="waterInput" type="number" placeholder="Add ounces">
+    <input id="waterInput" type="number">
     <button onclick="addWater()">Add Water</button>
-    <h4>Total: <span id="waterTotal">0</span> oz</h4>
+    <h4>Total Today: <span id="waterTotal">0</span> oz</h4>
 </div>
 
 <!-- FOOD -->
@@ -115,13 +115,14 @@ li { margin:12px 0; padding:8px; background:#5a5a5a; border-radius:8px; }
     <h3>Friday Weigh-In Tracker</h3>
 
     <input type="date" id="weightDate">
-    <input id="weightInput" type="number" placeholder="Weight">
-    <textarea id="weightNote" placeholder="Notes"></textarea>
+    <input id="weightInput" type="number">
+    <textarea id="weightNote"></textarea>
 
     <button onclick="saveWeight()">Save Weigh-In</button>
 
     <h4>Start: 247 lbs</h4>
-    <h4>Goal: 175 lbs / 155 lbs</h4>
+    <h4>Goal 1: 175 lbs</h4>
+    <h4>Goal 2: 155 lbs</h4>
 
     <ul id="weightList"></ul>
 </div>
@@ -130,18 +131,16 @@ li { margin:12px 0; padding:8px; background:#5a5a5a; border-radius:8px; }
 
 todayDate.innerText = new Date().toDateString();
 
-/* CALORIES */
+/* GOAL */
 let DAILY_LIMIT = localStorage.getItem("goal") ? parseInt(localStorage.getItem("goal")) : 1700;
 
 function setGoal(){
-    let g = parseInt(calGoalInput.value);
-    if(!g) return;
-    DAILY_LIMIT = g;
-    localStorage.setItem("goal", g);
-    goalDisplay.innerText = g;
+    DAILY_LIMIT = parseInt(calGoalInput.value);
+    localStorage.setItem("goal", DAILY_LIMIT);
+    goalDisplay.innerText = DAILY_LIMIT;
 }
 
-/* FOOD DATABASE */
+/* FOOD DB */
 const foodDB = [
     {name:"chicken breast", cal:165, protein:31, carbs:0, fat:3.6},
     {name:"rice", cal:206, protein:4, carbs:45, fat:0.4},
@@ -154,26 +153,27 @@ function today(){
     return new Date().toISOString().slice(0,10);
 }
 
-/* FOOD */
-function findFood(v){
-    v = v.toLowerCase();
-    return foodDB.find(f => v.includes(f.name));
+/* FOOD FIXED */
+function findFood(input){
+    input = input.toLowerCase();
+    return foodDB.find(f => input.includes(f.name));
 }
 
 function addFood(){
-    let f = findFood(foodName.value);
-    if(!f) return alert("Food not found");
+    let match = findFood(foodName.value);
+    if(!match) return alert("Food not found");
 
-    let data = JSON.parse(localStorage.getItem("food_"+today())) || [];
-    data.push(f);
+    let data = JSON.parse(localStorage.getItem("food_"+today()))||[];
+    data.push(match);
+
     localStorage.setItem("food_"+today(), JSON.stringify(data));
-
     loadFood();
 }
 
 function loadFood(){
-    let data = JSON.parse(localStorage.getItem("food_"+today())) || [];
-    foodList.innerHTML = "";
+    let data = JSON.parse(localStorage.getItem("food_"+today()))||[];
+
+    foodList.innerHTML="";
 
     let cal=0, pro=0, car=0, fat=0;
 
@@ -188,19 +188,19 @@ function loadFood(){
         foodList.appendChild(li);
     });
 
-    totalCalories.innerText = cal;
-    totalProtein.innerText = pro;
-    totalCarbs.innerText = car;
-    totalFat.innerText = fat;
-    calLeft.innerText = DAILY_LIMIT - cal;
+    totalCalories.innerText=cal;
+    totalProtein.innerText=pro;
+    totalCarbs.innerText=car;
+    totalFat.innerText=fat;
+    calLeft.innerText=DAILY_LIMIT - cal;
 }
 
-/* WATER */
+/* WATER FIX */
 function addWater(){
     let oz = parseFloat(waterInput.value);
     if(!oz) return;
 
-    let data = JSON.parse(localStorage.getItem("water_"+today())) || [];
+    let data = JSON.parse(localStorage.getItem("water_"+today()))||[];
     data.push(oz);
 
     localStorage.setItem("water_"+today(), JSON.stringify(data));
@@ -208,103 +208,54 @@ function addWater(){
 }
 
 function loadWater(){
-    let data = JSON.parse(localStorage.getItem("water_"+today())) || [];
+    let data = JSON.parse(localStorage.getItem("water_"+today()))||[];
     waterTotal.innerText = data.reduce((a,b)=>a+b,0);
 }
 
-/* FASTING */
+/* FAST FIX */
 function startFast(){
-    let start = new Date();
-    let hrs = parseInt(fastType.value);
+    let start=new Date();
+    let hrs=parseInt(fastType.value);
 
-    localStorage.setItem("start", start);
-    localStorage.setItem("end", new Date(start.getTime()+hrs*3600000));
-
-    runTimer();
+    localStorage.setItem("start",start);
+    localStorage.setItem("end",new Date(start.getTime()+hrs*3600000));
 }
 
 function endFast(){
-    let start = new Date(localStorage.getItem("start"));
-    let end = new Date();
+    let start=new Date(localStorage.getItem("start"));
+    let end=new Date();
 
-    let diff = (end-start)/1000;
-    let h = Math.floor(diff/3600);
-    let m = Math.floor((diff%3600)/60);
+    let diff=(end-start)/1000;
+    let h=Math.floor(diff/3600);
+    let m=Math.floor((diff%3600)/60);
 
-    let data = JSON.parse(localStorage.getItem("fasts")) || [];
+    let data=JSON.parse(localStorage.getItem("fasts"))||[];
 
     data.push({
-        date: today(),
-        duration: h+"h "+m+"m",
-        notes: notes.value
+        date:today(),
+        duration:h+"h "+m+"m",
+        notes:notes.value
     });
 
-    localStorage.setItem("fasts", JSON.stringify(data));
+    localStorage.setItem("fasts",JSON.stringify(data));
     loadHistory();
 }
 
-/* HISTORY */
 function loadHistory(){
-    let data = JSON.parse(localStorage.getItem("fasts")) || [];
-    historyList.innerHTML = "";
+    let data=JSON.parse(localStorage.getItem("fasts"))||[];
+    historyList.innerHTML="";
 
-    data.forEach((x,i)=>{
+    data.forEach(x=>{
         let li=document.createElement("li");
-        li.innerHTML = `
-        ${x.date} - ${x.duration}<br>
-        ${x.notes}<br>
-        <button onclick="deleteFast(${i})">Delete</button>`;
+        li.innerHTML=`${x.date} - ${x.duration}<br>${x.notes}`;
         historyList.appendChild(li);
     });
 }
 
-function deleteFast(i){
-    let data = JSON.parse(localStorage.getItem("fasts"));
-    data.splice(i,1);
-    localStorage.setItem("fasts", JSON.stringify(data));
-    loadHistory();
-}
-
-/* WEIGHT */
-function saveWeight(){
-    let data = JSON.parse(localStorage.getItem("weights")) || [];
-
-    data.push({
-        date: weightDate.value,
-        weight: weightInput.value,
-        note: weightNote.value
-    });
-
-    localStorage.setItem("weights", JSON.stringify(data));
-    loadWeights();
-}
-
-function loadWeights(){
-    let data = JSON.parse(localStorage.getItem("weights")) || [];
-    weightList.innerHTML = "";
-
-    data.forEach((x,i)=>{
-        let li=document.createElement("li");
-        li.innerHTML = `
-        ${x.date} - ${x.weight} lbs<br>
-        ${x.note}<br>
-        <button onclick="deleteWeight(${i})">Delete</button>`;
-        weightList.appendChild(li);
-    });
-}
-
-function deleteWeight(i){
-    let data = JSON.parse(localStorage.getItem("weights"));
-    data.splice(i,1);
-    localStorage.setItem("weights", JSON.stringify(data));
-    loadWeights();
-}
-
 /* INIT */
 loadFood();
-loadHistory();
-loadWeights();
 loadWater();
+loadHistory();
 
 </script>
 
