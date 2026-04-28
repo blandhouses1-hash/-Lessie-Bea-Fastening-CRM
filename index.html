@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { font-family: Arial; background:#3a3a3a; color:white; margin:0; }
+body { font-family: Arial; background:#2f2f2f; color:white; margin:0; }
 
 header {
-    background:#ff69b4;
+    background:#ff4fa3;
     padding:15px;
     text-align:center;
 }
 
 .title { font-size:20px; font-weight:bold; }
-.date { font-size:14px; margin-top:5px; }
+.date { font-size:14px; }
 
 .box {
-    background:#4a4a4a;
+    background:#3f3f3f;
     margin:10px;
     padding:15px;
     border-radius:12px;
@@ -28,19 +28,19 @@ header {
 
 input, textarea, button, select {
     width:100%;
-    padding:12px;
+    padding:10px;
     margin:6px 0;
     border-radius:8px;
     border:none;
-    font-size:16px;
+    font-size:15px;
 }
 
-button { background:#ff69b4; color:white; }
+button { background:#ff4fa3; color:white; }
 
 li {
     margin:10px 0;
     padding:10px;
-    background:#5a5a5a;
+    background:#555;
     border-radius:8px;
 }
 </style>
@@ -49,81 +49,90 @@ li {
 <body>
 
 <header>
-    <div class="title">Lessie Bea Fastening CRM</div>
-    <div class="date" id="todayDate"></div>
+<div class="title">Lessie Bea Fastening CRM</div>
+<div class="date" id="todayDate"></div>
 </header>
 
 <!-- CALORIES -->
 <div class="box">
-    <h3>Daily Calorie Goal</h3>
-    <input id="calGoalInput" type="number">
-    <button onclick="setGoal()">Save Goal</button>
-    <h4>Goal: <span id="goalDisplay">1700</span></h4>
+<h3>Daily Calorie Goal</h3>
+<input id="calGoalInput" type="number">
+<button onclick="setGoal()">Save Goal</button>
+<h4>Goal: <span id="goalDisplay">1700</span></h4>
+<h4>Calories Left: <span id="calLeft">0</span></h4>
 </div>
 
 <!-- FASTING -->
 <div class="box">
-    <div class="big" id="timer">00:00:00</div>
-    <div class="sub" id="remaining">Time Left: --</div>
+<div class="big" id="timer">00:00:00</div>
+<div class="sub" id="remaining">Time Left: --</div>
 
-    <select id="fastType">
-        <option value="16">16:8</option>
-        <option value="18">18:6</option>
-        <option value="23">OMAD</option>
-        <option value="custom">Custom</option>
-    </select>
+<select id="fastType">
+<option value="16">16:8</option>
+<option value="18">18:6</option>
+<option value="23">OMAD</option>
+<option value="custom">Custom</option>
+</select>
 
-    <input id="customHours" type="number">
+<input id="customHours" type="number">
 
-    <button onclick="startFast()">Start Fast</button>
-    <button onclick="endFast()">End Fast</button>
+<button onclick="startFast()">Start Fast</button>
+<button onclick="endFast()">End Fast</button>
 
-    <textarea id="notes"></textarea>
+<textarea id="notes" placeholder="Fasting notes"></textarea>
 </div>
 
 <!-- WATER -->
 <div class="box">
-    <h3>Water Intake</h3>
-    <input id="waterInput" type="number">
-    <button onclick="addWater()">Add Water</button>
+<h3>Water (40 oz goal)</h3>
+<input id="waterInput" type="number">
+<button onclick="addWater()">Add Water</button>
 
-    <h4>Total: <span id="waterTotal">0</span> oz</h4>
-    <ul id="waterList"></ul>
+<h4>Total: <span id="waterTotal">0</span> oz</h4>
+<ul id="waterList"></ul>
 </div>
 
 <!-- FOOD -->
 <div class="box">
-    <h3>Food Tracker</h3>
+<h3>Food Tracker</h3>
 
-    <input id="foodName" placeholder="Food name">
-    <button onclick="addFood()">Add Food</button>
+<input id="foodName" placeholder="Food name">
+<input id="foodCal" type="number" placeholder="Calories">
+<input id="foodProtein" type="number" placeholder="Protein">
+<input id="foodCarbs" type="number" placeholder="Carbs">
+<input id="foodFat" type="number" placeholder="Fat">
 
-    <h4>Calories: <span id="totalCalories">0</span></h4>
-    <h4>Left: <span id="calLeft">1700</span></h4>
+<button onclick="addFood()">Add Food</button>
 
-    <ul id="foodList"></ul>
+<h4>Calories: <span id="totalCalories">0</span></h4>
+<h4>Protein: <span id="totalProtein">0</span></h4>
+<h4>Carbs: <span id="totalCarbs">0</span></h4>
+<h4>Fat: <span id="totalFat">0</span></h4>
+
+<ul id="foodList"></ul>
 </div>
 
 <!-- FAST HISTORY -->
 <div class="box">
-    <h3>Fasting History</h3>
-    <ul id="historyList"></ul>
+<h3>Fasting History</h3>
+<ul id="historyList"></ul>
 </div>
 
 <!-- WEIGHT -->
 <div class="box">
-    <h3>Weigh-In Tracker</h3>
+<h3>Friday Weigh-In Tracker</h3>
 
-    <input type="date" id="weightDate">
-    <input id="weightInput" type="number">
-    <textarea id="weightNote"></textarea>
+<input type="date" id="weightDate">
+<input id="weightInput" type="number" placeholder="Weight">
+<textarea id="weightNote" placeholder="Notes"></textarea>
 
-    <button onclick="saveWeight()">Save</button>
+<button onclick="saveWeight()">Save Weigh-In</button>
 
-    <h4>Start: 247 lbs</h4>
-    <h4>Goal: 175 / 155 lbs</h4>
+<h4>Start: 247 lbs</h4>
+<h4>Goal 1: 175 lbs</h4>
+<h4>Goal 2: 155 lbs</h4>
 
-    <ul id="weightList"></ul>
+<ul id="weightList"></ul>
 </div>
 
 <script>
@@ -131,147 +140,175 @@ li {
 todayDate.innerText = new Date().toDateString();
 
 /* GOAL */
-let DAILY_LIMIT = localStorage.getItem("goal")
-? parseInt(localStorage.getItem("goal"))
-: 1700;
-
-function setGoal(){
-    let g = parseInt(calGoalInput.value);
-    if(!g) return;
-    DAILY_LIMIT = g;
-    localStorage.setItem("goal", g);
-    goalDisplay.innerText = g;
-}
+let DAILY_LIMIT = 1700;
 
 /* DATE */
 function today(){
-    return new Date().toISOString().slice(0,10);
+return new Date().toISOString().slice(0,10);
+}
+
+/* SET GOAL */
+function setGoal(){
+DAILY_LIMIT = parseInt(calGoalInput.value);
+localStorage.setItem("goal", DAILY_LIMIT);
+goalDisplay.innerText = DAILY_LIMIT;
 }
 
 /* FOOD */
 function addFood(){
-    let name = foodName.value;
-    if(!name) return;
+let food = {
+name: foodName.value,
+cal: parseInt(foodCal.value||0),
+protein: parseInt(foodProtein.value||0),
+carbs: parseInt(foodCarbs.value||0),
+fat: parseInt(foodFat.value||0)
+};
 
-    let data = JSON.parse(localStorage.getItem("food_"+today())) || [];
-    data.push({name:name, cal:0});
+let data = JSON.parse(localStorage.getItem("food_"+today()))||[];
+data.push(food);
 
-    localStorage.setItem("food_"+today(), JSON.stringify(data));
-    loadFood();
+localStorage.setItem("food_"+today(), JSON.stringify(data));
+loadFood();
 }
 
 function loadFood(){
-    let data = JSON.parse(localStorage.getItem("food_"+today())) || [];
-    foodList.innerHTML = "";
+let data = JSON.parse(localStorage.getItem("food_"+today()))||[];
+foodList.innerHTML="";
 
-    let cal = 0;
+let cal=0,pro=0,carb=0,fat=0;
 
-    data.forEach((x,i)=>{
-        let li=document.createElement("li");
-        li.innerHTML = `${x.name} <button onclick="deleteFood(${i})">Delete</button>`;
-        foodList.appendChild(li);
-    });
+data.forEach((x,i)=>{
+cal+=x.cal; pro+=x.protein; carb+=x.carbs; fat+=x.fat;
 
-    totalCalories.innerText = cal;
-    calLeft.innerText = DAILY_LIMIT - cal;
+let li=document.createElement("li");
+li.innerHTML=`
+${x.name}
+<button onclick="delFood(${i})">Delete</button>
+`;
+foodList.appendChild(li);
+});
+
+totalCalories.innerText=cal;
+totalProtein.innerText=pro;
+totalCarbs.innerText=carb;
+totalFat.innerText=fat;
+calLeft.innerText=DAILY_LIMIT-cal;
 }
 
-function deleteFood(i){
-    let data = JSON.parse(localStorage.getItem("food_"+today()));
-    data.splice(i,1);
-    localStorage.setItem("food_"+today(), JSON.stringify(data));
-    loadFood();
+function delFood(i){
+let data=JSON.parse(localStorage.getItem("food_"+today()));
+data.splice(i,1);
+localStorage.setItem("food_"+today(),JSON.stringify(data));
+loadFood();
 }
 
 /* WATER */
 function addWater(){
-    let oz = parseFloat(waterInput.value);
-    if(!oz) return;
-
-    let data = JSON.parse(localStorage.getItem("water_"+today())) || [];
-    data.push(oz);
-
-    localStorage.setItem("water_"+today(), JSON.stringify(data));
-    loadWater();
+let data=JSON.parse(localStorage.getItem("water_"+today()))||[];
+data.push(parseInt(waterInput.value));
+localStorage.setItem("water_"+today(),JSON.stringify(data));
+loadWater();
 }
 
 function loadWater(){
-    let data = JSON.parse(localStorage.getItem("water_"+today())) || [];
-    waterList.innerHTML = "";
+let data=JSON.parse(localStorage.getItem("water_"+today()))||[];
+waterList.innerHTML="";
+let total=0;
 
-    let total = 0;
+data.forEach((x,i)=>{
+total+=x;
+let li=document.createElement("li");
+li.innerHTML=`${x} oz <button onclick="delWater(${i})">Delete</button>`;
+waterList.appendChild(li);
+});
 
-    data.forEach((x,i)=>{
-        total += x;
-
-        let li=document.createElement("li");
-        li.innerHTML = `${x} oz <button onclick="deleteWater(${i})">Delete</button>`;
-        waterList.appendChild(li);
-    });
-
-    waterTotal.innerText = total;
+waterTotal.innerText=total;
 }
 
-function deleteWater(i){
-    let data = JSON.parse(localStorage.getItem("water_"+today()));
-    data.splice(i,1);
-    localStorage.setItem("water_"+today(), JSON.stringify(data));
-    loadWater();
+function delWater(i){
+let data=JSON.parse(localStorage.getItem("water_"+today()));
+data.splice(i,1);
+localStorage.setItem("water_"+today(),JSON.stringify(data));
+loadWater();
 }
 
-/* FAST */
+/* FASTING */
+let timer;
+
 function startFast(){
-    let hrs = fastType.value === "custom"
-    ? parseFloat(customHours.value)
-    : parseInt(fastType.value);
+let hrs = fastType.value==="custom"
+? parseFloat(customHours.value)
+: parseInt(fastType.value);
 
-    let start = new Date();
-    let end = new Date(start.getTime() + hrs*3600000);
+let start=new Date();
+let end=new Date(start.getTime()+hrs*3600000);
 
-    localStorage.setItem("start", start);
-    localStorage.setItem("end", end);
+localStorage.setItem("start",start);
+localStorage.setItem("end",end);
+runTimer();
 }
 
+function runTimer(){
+clearInterval(timer);
+
+timer=setInterval(()=>{
+let end=new Date(localStorage.getItem("end"));
+let now=new Date();
+let diff=(end-now)/1000;
+
+if(diff<=0){
+clearInterval(timer);
+remaining.innerText="DONE";
+return;
+}
+
+let h=Math.floor(diff/3600);
+let m=Math.floor((diff%3600)/60);
+let s=Math.floor(diff%60);
+
+timer.innerText=`${h}:${m}:${s}`;
+},1000);
+}
+
+/* END FAST FIXED */
 function endFast(){
-    let start = new Date(localStorage.getItem("start"));
-    let end = new Date();
+clearInterval(timer);
 
-    let diff = (end-start)/1000;
-    let h = Math.floor(diff/3600);
-    let m = Math.floor((diff%3600)/60);
+let start=new Date(localStorage.getItem("start"));
+let end=new Date();
 
-    let data = JSON.parse(localStorage.getItem("fasts")) || [];
+let diff=(end-start)/1000;
+let h=Math.floor(diff/3600);
+let m=Math.floor((diff%3600)/60);
 
-    data.push({
-        date: today(),
-        duration: h+"h "+m+"m",
-        notes: notes.value
-    });
+let data=JSON.parse(localStorage.getItem("fasts"))||[];
+data.push({date:today(),duration:h+"h "+m+"m",notes:notes.value});
 
-    localStorage.setItem("fasts", JSON.stringify(data));
-    loadHistory();
+localStorage.setItem("fasts",JSON.stringify(data));
+loadHistory();
 }
 
+/* HISTORY */
 function loadHistory(){
-    let data = JSON.parse(localStorage.getItem("fasts")) || [];
-    historyList.innerHTML = "";
+let data=JSON.parse(localStorage.getItem("fasts"))||[];
+historyList.innerHTML="";
 
-    data.forEach((x,i)=>{
-        let li=document.createElement("li");
-        li.innerHTML = `
-        ${x.date} - ${x.duration}<br>
-        ${x.notes}
-        <button onclick="deleteFast(${i})">Delete</button>
-        `;
-        historyList.appendChild(li);
-    });
+data.forEach((x,i)=>{
+let li=document.createElement("li");
+li.innerHTML=`
+${x.date} - ${x.duration}<br>
+${x.notes}
+<button onclick="delFast(${i})">Delete</button>
+`;
+historyList.appendChild(li);
+});
 }
 
-function deleteFast(i){
-    let data = JSON.parse(localStorage.getItem("fasts"));
-    data.splice(i,1);
-    localStorage.setItem("fasts", JSON.stringify(data));
-    loadHistory();
+function delFast(i){
+let data=JSON.parse(localStorage.getItem("fasts"));
+data.splice(i,1);
+localStorage.setItem("fasts",JSON.stringify(data));
+loadHistory();
 }
 
 /* INIT */
