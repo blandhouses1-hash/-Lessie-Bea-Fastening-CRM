@@ -37,10 +37,12 @@ input, textarea, button, select {
 
 button { background:#ff69b4; color:white; }
 
-li { margin:12px 0; padding:8px; background:#5a5a5a; border-radius:8px; }
-
-.green { color:#00ff88; }
-.red { color:#ff4d4d; }
+li {
+    margin:12px 0;
+    padding:10px;
+    background:#5a5a5a;
+    border-radius:8px;
+}
 </style>
 </head>
 
@@ -54,7 +56,7 @@ li { margin:12px 0; padding:8px; background:#5a5a5a; border-radius:8px; }
 <!-- CALORIE GOAL -->
 <div class="box">
     <h3>Daily Calorie Goal</h3>
-    <input id="calGoalInput" type="number">
+    <input id="calGoalInput" type="number" placeholder="Set goal">
     <button onclick="setGoal()">Save Goal</button>
     <h4>Goal: <span id="goalDisplay">1700</span></h4>
 </div>
@@ -76,17 +78,16 @@ li { margin:12px 0; padding:8px; background:#5a5a5a; border-radius:8px; }
     <button onclick="startFast()">Start Fast</button>
     <button onclick="endFast()">End Fast</button>
 
-    <textarea id="notes"></textarea>
+    <textarea id="notes" placeholder="Fasting notes"></textarea>
 </div>
 
 <!-- WATER -->
 <div class="box">
-    <h3>💧 Water Intake</h3>
+    <h3>💧 Water Intake (40 oz goal)</h3>
     <input id="waterInput" type="number">
     <button onclick="addWater()">Add Water</button>
 
-    <h4>Total Today: <span id="waterTotal">0</span> oz</h4>
-
+    <h4>Total: <span id="waterTotal">0</span> oz</h4>
     <ul id="waterList"></ul>
 </div>
 
@@ -100,6 +101,10 @@ li { margin:12px 0; padding:8px; background:#5a5a5a; border-radius:8px; }
     <h4>Total Calories: <span id="totalCalories">0</span></h4>
     <h4>Calories Left: <span id="calLeft">1700</span></h4>
 
+    <h4>Protein: <span id="totalProtein">0</span>g</h4>
+    <h4>Carbs: <span id="totalCarbs">0</span>g</h4>
+    <h4>Fat: <span id="totalFat">0</span>g</h4>
+
     <ul id="foodList"></ul>
 </div>
 
@@ -107,6 +112,23 @@ li { margin:12px 0; padding:8px; background:#5a5a5a; border-radius:8px; }
 <div class="box">
     <h3>Fasting History</h3>
     <ul id="historyList"></ul>
+</div>
+
+<!-- WEIGHT -->
+<div class="box">
+    <h3>Friday Weigh-In Tracker</h3>
+
+    <input type="date" id="weightDate">
+    <input id="weightInput" type="number" placeholder="Weight">
+    <textarea id="weightNote" placeholder="Notes"></textarea>
+
+    <button onclick="saveWeight()">Save Weigh-In</button>
+
+    <h4>Start: 247 lbs</h4>
+    <h4>Goal 1: 175 lbs</h4>
+    <h4>Goal 2: 155 lbs</h4>
+
+    <ul id="weightList"></ul>
 </div>
 
 <script>
@@ -135,7 +157,14 @@ function addFood(){
     if(!name) return;
 
     let data = JSON.parse(localStorage.getItem("food_"+today())) || [];
-    data.push({name:name, cal:0});
+
+    data.push({
+        name,
+        cal: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0
+    });
 
     localStorage.setItem("food_"+today(), JSON.stringify(data));
     loadFood();
@@ -145,21 +174,27 @@ function loadFood(){
     let data = JSON.parse(localStorage.getItem("food_"+today())) || [];
     foodList.innerHTML = "";
 
-    let total = 0;
+    let cal=0, pro=0, car=0, fat=0;
 
     data.forEach((x,i)=>{
-        total += x.cal;
+        cal+=x.cal;
+        pro+=x.protein;
+        car+=x.carbs;
+        fat+=x.fat;
 
-        let li = document.createElement("li");
+        let li=document.createElement("li");
         li.innerHTML = `
-        ${x.name} - ${x.cal} cal
+        ${x.name}
         <button onclick="deleteFood(${i})">Delete</button>
         `;
         foodList.appendChild(li);
     });
 
-    totalCalories.innerText = total;
-    calLeft.innerText = DAILY_LIMIT - total;
+    totalCalories.innerText=cal;
+    totalProtein.innerText=pro;
+    totalCarbs.innerText=car;
+    totalFat.innerText=fat;
+    calLeft.innerText=DAILY_LIMIT - cal;
 }
 
 function deleteFood(i){
@@ -185,12 +220,12 @@ function loadWater(){
     let data = JSON.parse(localStorage.getItem("water_"+today())) || [];
     waterList.innerHTML = "";
 
-    let total = 0;
+    let total=0;
 
     data.forEach((x,i)=>{
-        total += x;
+        total+=x;
 
-        let li = document.createElement("li");
+        let li=document.createElement("li");
         li.innerHTML = `
         ${x} oz
         <button onclick="deleteWater(${i})">Delete</button>
@@ -198,7 +233,7 @@ function loadWater(){
         waterList.appendChild(li);
     });
 
-    waterTotal.innerText = total;
+    waterTotal.innerText=total;
 }
 
 function deleteWater(i){
@@ -223,22 +258,19 @@ function startFast(){
     localStorage.setItem("end", end);
 }
 
-/* FIXED END FAST BUTTON */
 function endFast(){
-    clearInterval(timer);
-
     let start = new Date(localStorage.getItem("start"));
     let end = new Date();
 
-    let diff = (end - start) / 1000;
-    let h = Math.floor(diff / 3600);
-    let m = Math.floor((diff % 3600) / 60);
+    let diff=(end-start)/1000;
+    let h=Math.floor(diff/3600);
+    let m=Math.floor((diff%3600)/60);
 
     let data = JSON.parse(localStorage.getItem("fasts")) || [];
 
     data.push({
         date: today(),
-        duration: h + "h " + m + "m",
+        duration: h+"h "+m+"m",
         notes: notes.value
     });
 
@@ -252,8 +284,8 @@ function loadHistory(){
     historyList.innerHTML = "";
 
     data.forEach((x,i)=>{
-        let li = document.createElement("li");
-        li.innerHTML = `
+        let li=document.createElement("li");
+        li.innerHTML=`
         ${x.date} - ${x.duration}<br>
         ${x.notes}<br>
         <button onclick="deleteFast(${i})">Delete</button>
