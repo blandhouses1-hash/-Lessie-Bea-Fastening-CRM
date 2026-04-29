@@ -1,99 +1,240 @@
-<!-- REPLACE ONLY YOUR FOOD SCRIPT SECTION WITH THIS -->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lessie Bea Fastening CRM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { font-family: Arial; background:#2f2f2f; color:white; margin:0; }
+
+header { background:#ff4fa3; padding:15px; text-align:center; }
+
+.box { background:#3f3f3f; margin:10px; padding:15px; border-radius:12px; }
+
+.big { font-size:48px; text-align:center; }
+.sub { text-align:center; color:#00ffd5; }
+
+input, textarea, button, select {
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:8px;
+border:none;
+}
+
+button { background:#ff4fa3; color:white; }
+
+li { margin:10px 0; padding:10px; background:#555; border-radius:8px; }
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>Lessie Bea Fastening CRM</h2>
+<div id="todayDate"></div>
+</header>
+
+<!-- CALORIES -->
+<div class="box">
+<h3>Daily Calorie Goal</h3>
+<input id="calGoalInput" type="number">
+<button onclick="setGoal()">Save Goal</button>
+<h4>Goal: <span id="goalDisplay">1700</span></h4>
+<h4>Calories Left: <span id="calLeft">0</span></h4>
+</div>
+
+<!-- FASTING -->
+<div class="box">
+<div class="big" id="timer">00:00:00</div>
+<div class="sub" id="remaining">Time Left: --</div>
+<div class="sub" id="startTime">Start: --</div>
+<div class="sub" id="endTime">End: --</div>
+
+<select id="fastType">
+<option value="16">16:8</option>
+<option value="18">18:6</option>
+<option value="23">OMAD</option>
+<option value="custom">Custom</option>
+<option value="2">2MAD</option>
+<option value="3">3MAD</option>
+</select>
+
+<input id="customHours" type="number">
+
+<button onclick="startFast()">Start Fast</button>
+<button onclick="endFast()">End Fast</button>
+
+<textarea id="notes"></textarea>
+</div>
+
+<!-- MEAL TRACKER -->
+<div class="box">
+<h3>Meal Tracker</h3>
+<select id="mealType" onchange="setMealType()">
+<option value="OMAD">OMAD</option>
+<option value="2MAD">2MAD</option>
+<option value="3MAD">3MAD</option>
+<option value="Custom">Custom</option>
+</select>
+
+<div class="sub" id="mealDisplay"></div>
+</div>
+
+<!-- FOOD -->
+<div class="box">
+<h3>Food Tracker</h3>
+
+<input id="foodName" placeholder="Food name">
+<input id="foodCal" type="number">
+<input id="foodProtein" type="number">
+<input id="foodCarbs" type="number">
+<input id="foodFat" type="number">
+
+<button onclick="addFood()">Add Food</button>
+
+<h4>Calories: <span id="totalCalories">0</span></h4>
+<h4>Protein: <span id="totalProtein">0</span></h4>
+<h4>Carbs: <span id="totalCarbs">0</span></h4>
+<h4>Fat: <span id="totalFat">0</span></h4>
+
+<ul id="foodList"></ul>
+</div>
+
+<!-- FAST HISTORY -->
+<div class="box">
+<h3>Fasting History</h3>
+<ul id="historyList"></ul>
+</div>
+
+<!-- WEIGHT -->
+<div class="box">
+<h3>Friday Weigh-In Tracker</h3>
+
+<input type="date" id="weightDate">
+<input id="weightInput" type="number" placeholder="Weight">
+<textarea id="weightNote" placeholder="Notes"></textarea>
+
+<button onclick="saveWeight()">Save Weigh-In</button>
+
+<h4>Start: 247 lbs</h4>
+<h4>Goal 1: 175 lbs</h4>
+<h4>Goal 2: 155 lbs</h4>
+
+<ul id="weightList"></ul>
+</div>
 
 <script>
 
-/* BETTER FOOD DATABASE */
-const foodDB = [
-{name:"cheese pizza", cal:285, p:12, c:36, f:10},
-{name:"pepperoni pizza", cal:313, p:13, c:35, f:13},
-{name:"slice pizza", cal:285, p:12, c:36, f:10},
+todayDate.innerText = new Date().toDateString();
 
-{name:"grape fruit", cal:62, p:0.6, c:16, f:0.3},
-{name:"grape soda", cal:150, p:0, c:40, f:0},
-
-{name:"apple", cal:95, p:0.5, c:25, f:0.3},
-{name:"banana", cal:105, p:1, c:27, f:0}
-];
-
-/* ASK USER FOR TYPE */
-function getFoodDetails(input){
-input = input.toLowerCase();
-
-if(input.includes("pizza")){
-let type = prompt("What kind? cheese / pepperoni / slice");
-if(!type) return null;
-return foodDB.find(f => f.name.includes(type.toLowerCase()+" pizza"));
+/* DATE */
+function today(){
+return new Date().toISOString().slice(0,10);
 }
 
-if(input.includes("grape")){
-let type = prompt("Fruit or soda?");
-if(!type) return null;
-return foodDB.find(f => f.name.includes("grape "+type.toLowerCase()));
+/* CALORIES */
+let DAILY_LIMIT = localStorage.getItem("goal") || 1700;
+goalDisplay.innerText = DAILY_LIMIT;
+
+function setGoal(){
+DAILY_LIMIT = Number(calGoalInput.value || 1700);
+localStorage.setItem("goal", DAILY_LIMIT);
+goalDisplay.innerText = DAILY_LIMIT;
+loadFood();
 }
 
-/* normal match */
-return foodDB.find(f =>
-input.includes(f.name) || f.name.includes(input)
-);
+/* FAST */
+let timer;
+
+function startFast(){
+let hrs=fastType.value==="custom"?parseFloat(customHours.value):parseInt(fastType.value);
+let start=new Date();
+let end=new Date(start.getTime()+hrs*3600000);
+
+localStorage.setItem("start",start);
+localStorage.setItem("end",end);
+
+startTime.innerText="Start: "+start.toLocaleTimeString();
+endTime.innerText="End: "+end.toLocaleTimeString();
+
+runTimer();
 }
 
-/* AUTO FILL */
-function autoFillFood(){
-let match = getFoodDetails(foodName.value);
+function runTimer(){
+clearInterval(timer);
+timer=setInterval(()=>{
+let end=new Date(localStorage.getItem("end"));
+let now=new Date();
+let diff=(end-now)/1000;
 
-if(match){
-foodCal.value = match.cal;
-foodProtein.value = match.p;
-foodCarbs.value = match.c;
-foodFat.value = match.f;
+if(diff<=0){
+remaining.innerText="DONE";
+clearInterval(timer);
+return;
 }
+
+let h=String(Math.floor(diff/3600)).padStart(2,'0');
+let m=String(Math.floor((diff%3600)/60)).padStart(2,'0');
+let s=String(Math.floor(diff%60)).padStart(2,'0');
+
+let display=h+":"+m+":"+s;
+
+timerDisplay = display;
+document.getElementById("timer").innerText=display;
+remaining.innerText="Time Left: "+display;
+
+},1000);
 }
 
-foodName.removeEventListener("input", autoFillFood);
-foodName.addEventListener("blur", autoFillFood);
+function endFast(){
+clearInterval(timer);
+}
 
-/* ADD FOOD */
+/* MEAL */
+function setMealType(){
+mealDisplay.innerText="Meal Plan: "+mealType.value;
+}
+
+/* FOOD FIXED */
 function addFood(){
+
 let food={
 name:foodName.value,
-cal:parseFloat(foodCal.value)||0,
-protein:parseFloat(foodProtein.value)||0,
-carbs:parseFloat(foodCarbs.value)||0,
-fat:parseFloat(foodFat.value)||0
+cal:Number(foodCal.value||0),
+protein:Number(foodProtein.value||0),
+carbs:Number(foodCarbs.value||0),
+fat:Number(foodFat.value||0)
 };
 
 let data=JSON.parse(localStorage.getItem("food_"+today()))||[];
 data.push(food);
 localStorage.setItem("food_"+today(),JSON.stringify(data));
-
-foodName.value="";
-foodCal.value="";
-foodProtein.value="";
-foodCarbs.value="";
-foodFat.value="";
-
 loadFood();
 }
 
-/* LOAD FOOD */
 function loadFood(){
+
 let data=JSON.parse(localStorage.getItem("food_"+today()))||[];
 foodList.innerHTML="";
 
-let cal=0,pro=0,carb=0,fat=0;
+let cal=0,pro=0,car=0,fat=0;
 
 data.forEach((x,i)=>{
-cal+=Number(x.cal);
-pro+=Number(x.protein);
-carb+=Number(x.carbs);
-fat+=Number(x.fat);
+
+cal+=x.cal;
+pro+=x.protein;
+car+=x.carbs;
+fat+=x.fat;
 
 let li=document.createElement("li");
 li.innerHTML=`
-${x.name} - ${x.cal} cal
-<br>Protein: ${x.protein}g
-<br>Carbs: ${x.carbs}g
-<br>Fat: ${x.fat}g
+${x.name}<br>
+Calories: ${x.cal}<br>
+Protein: ${x.protein}<br>
+Carbs: ${x.carbs}<br>
+Fat: ${x.fat}<br>
+<button onclick="editFood(${i})">Edit</button>
 <button onclick="delFood(${i})">Delete</button>
 `;
 foodList.appendChild(li);
@@ -101,9 +242,66 @@ foodList.appendChild(li);
 
 totalCalories.innerText=cal;
 totalProtein.innerText=pro;
-totalCarbs.innerText=carb;
+totalCarbs.innerText=car;
 totalFat.innerText=fat;
+
 calLeft.innerText=DAILY_LIMIT-cal;
 }
 
+function editFood(i){
+let data=JSON.parse(localStorage.getItem("food_"+today()));
+let x=data[i];
+
+foodName.value=x.name;
+foodCal.value=x.cal;
+foodProtein.value=x.protein;
+foodCarbs.value=x.carbs;
+foodFat.value=x.fat;
+
+data.splice(i,1);
+localStorage.setItem("food_"+today(),JSON.stringify(data));
+loadFood();
+}
+
+function delFood(i){
+let data=JSON.parse(localStorage.getItem("food_"+today()));
+data.splice(i,1);
+localStorage.setItem("food_"+today(),JSON.stringify(data));
+loadFood();
+}
+
+/* WEIGHT */
+function saveWeight(){
+let d=JSON.parse(localStorage.getItem("weights"))||[];
+d.push({date:weightDate.value,weight:weightInput.value,note:weightNote.value});
+localStorage.setItem("weights",JSON.stringify(d));
+loadWeights();
+}
+
+function loadWeights(){
+let d=JSON.parse(localStorage.getItem("weights"))||[];
+weightList.innerHTML="";
+d.forEach((x,i)=>{
+let li=document.createElement("li");
+li.innerHTML=`
+${x.date} - ${x.weight} lbs<br>${x.note}
+<button onclick="delWeight(${i})">Delete</button>`;
+weightList.appendChild(li);
+});
+}
+
+function delWeight(i){
+let d=JSON.parse(localStorage.getItem("weights"));
+d.splice(i,1);
+localStorage.setItem("weights",JSON.stringify(d));
+loadWeights();
+}
+
+/* LOAD */
+loadFood();
+loadWeights();
+
 </script>
+
+</body>
+</html>
